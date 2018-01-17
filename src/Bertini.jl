@@ -32,7 +32,37 @@ function bertini(
     push!(bertini_input, functions)
 
     for i in 1:length(f)
-        push!(bertini_input, "f$i = $(f[i]);")
+        monomials = MP.monomials(f[i])
+        fi_data = zip([MP.exponents(m) for m in monomials], [MP.variables(m) for m in monomials], MP.coefficients(f[i]))
+        fi = ""
+        t = first(fi_data)
+        if t[3] < 0
+            fi = string!(fi, "-$(abs(t[3]))")
+        else
+            fi = string(fi, "$(abs(t[3]))")
+        end
+        for j in 1:length(t[1])
+            if t[1][j] > 1
+                fi = string(fi, "*$(t[2][j]^t[1][j])")
+            elseif t[1][j] == 1
+                fi = string(fi, "*$(t[2][j])")
+            end
+        end
+        for t in Iterators.drop(fi_data, 1)
+            if t[3] < 0
+                fi = string(fi, "-$(abs(t[3]))")
+            else
+                fi = string(fi, "+$(abs(t[3]))")
+            end
+            for j in 1:length(t[1])
+                if t[1][j] > 1
+                    fi = string(fi, "*$(t[2][j]^t[1][j])")
+                elseif t[1][j] == 1
+                    fi = string(fi, "*$(t[2][j])")
+                end
+            end
+        end
+        push!(bertini_input, "f$i = $fi;")
     end
 
     push!(bertini_input, "END")
