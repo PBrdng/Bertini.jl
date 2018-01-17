@@ -3,9 +3,9 @@ Julia wrapper for Bertini (https://bertini.nd.edu). Provides the function `berti
 
 Uses the Julia package [DynamicPolynomials.jl](https://github.com/JuliaAlgebra/DynamicPolynomials.jl).
 
-For instance, to pass the polynomial
+For instance, to solve the polynomial
 ```math
-f(x) = [x^2 - 1]
+f(x) = x^2 - 1
 ```
 we type
 ```julia
@@ -13,7 +13,7 @@ using Bertini
 using DynamicPolynomials
 
 @polyvar x
-f = x^2 - 1
+f = [x^2 - 1]
 
 bertini(f)
 ```
