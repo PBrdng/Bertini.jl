@@ -8,9 +8,12 @@ export bertini
 function bertini(
     f::Vector{T};
     hom_variable_group = false,
-    file_path = "",
+    file_path = pwd(),
     bertini_path = "./",
     TrackType = 0) where {T <: MP.AbstractPolynomialLike}
+
+    oldpath = pwd()
+    cd(file_path)
 
     bertini_input = ["CONFIG";  "TrackType:$TrackType;"; "END;"; "INPUT"]
     if hom_variable_group
@@ -74,55 +77,52 @@ function bertini(
         bertini_path = string(bertini_path, "/")
     end
 
-    writedlm("$(file_path)input.txt", bertini_input, '\n')
-    run(`$(bertini_path)bertini $(file_path)input.txt`)
-
-    if bertini_path == "./"
-        output_path = file_path
-    else
-        output_path = bertini_path
-    end
+    writedlm("input.txt", bertini_input, '\n')
+    run(`$(bertini_path)bertini input.txt`)
     if TrackType == 0
         if !hom_variable_group
-            A = readdlm("$(output_path)finite_solutions")
+            A = readdlm("finite_solutions")
             n_vars = length(MP.variables(f))
             finite_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
-            A = readdlm("$(output_path)nonsingular_solutions")
+            A = readdlm("nonsingular_solutions")
             n_vars = length(MP.variables(f))
             nonsingular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
-            A = readdlm("$(output_path)real_finite_solutions")
+            A = readdlm("real_finite_solutions")
             n_vars = length(MP.variables(f))
             real_finite_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
-            A = readdlm("$(output_path)singular_solutions")
+            A = readdlm("singular_solutions")
             n_vars = length(MP.variables(f))
             singular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
+            cd(oldpath)
             return Dict(
                 "finite_solutions" => finite_solutions,
                 "nonsingular_solutions" => nonsingular_solutions,
                 "real_finite_solutions" => real_finite_solutions,
                 "singular_solutions" => singular_solutions)
         else
-            A = readdlm("$(output_path)nonsingular_solutions")
+            A = readdlm("nonsingular_solutions")
             n_vars = length(MP.variables(f))
             nonsingular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
-            A = readdlm("$(output_path)real_solutions")
+            A = readdlm("real_solutions")
             n_vars = length(MP.variables(f))
             real_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
-            A = readdlm("$(output_path)singular_solutions")
+            A = readdlm("singular_solutions")
             n_vars = length(MP.variables(f))
             singular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
 
+            cd(oldpath)
             return Dict(
                 "nonsingular_solutions" => nonsingular_solutions,
                 "real_solutions" => real_solutions,
                 "singular_solutions" => singular_solutions)
         end
     end
+    cd(oldpath)
 end
 end
