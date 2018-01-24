@@ -40,7 +40,7 @@ function bertini(
         fi = ""
         t = first(fi_data)
         if t[3] < 0
-            fi = string!(fi, "-$(abs(t[3]))")
+            fi = string(fi, "-$(abs(t[3]))")
         else
             fi = string(fi, "$(abs(t[3]))")
         end
