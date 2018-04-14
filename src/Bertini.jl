@@ -10,12 +10,22 @@ function bertini(
     hom_variable_group = false,
     file_path = pwd(),
     bertini_path = "./",
+    MPTYPE = nothing,
+    MAXNEWTONITS = nothing,
+    ENDGAMEBDRY = nothing,
+    ENDGAMENUM = nothing,
     TrackType = 0) where {T <: MP.AbstractPolynomialLike}
 
     oldpath = pwd()
     cd(file_path)
+    bertini_input = ["CONFIG",
+        "TrackType:$TrackType;"]
+    MPTYPE != nothing && push!(bertini_input, "MPTYPE: $MPTYPE;")
+    ENDGAMEBDRY != nothing && push!(bertini_input, "ENDGAMEBDRY: $ENDGAMEBDRY;")
+    ENDGAMENUM != nothing && push!(bertini_input, "ENDGAMENUM: $ENDGAMENUM;")
+    MAXNEWTONITS != nothing && push!(bertini_input, "MAXNEWTONITS: $MAXNEWTONITS;")
+    push!(bertini_input, "END;", "INPUT")
 
-    bertini_input = ["CONFIG";  "TrackType:$TrackType;"; "END;"; "INPUT"]
     if hom_variable_group
         f_vars = "hom_variable_group "
     else
