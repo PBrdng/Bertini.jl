@@ -39,10 +39,12 @@ function bertini(
         fi_data = zip([MP.exponents(m) for m in monomials], [MP.variables(m) for m in monomials], MP.coefficients(f[i]))
         fi = ""
         t = first(fi_data)
-        if t[3] < 0
-            fi = string(fi, "-$(abs(t[3]))")
+        if typeof(t[3]) <: Real
+            fi = string(fi, "+($(t[3]))")
         else
-            fi = string(fi, "$(abs(t[3]))")
+            fi = string(fi, "+(")
+            fi = string(fi, string(t[3])[1:end-2])
+            fi = string(fi, "*I)")
         end
         for j in 1:length(t[1])
             if t[1][j] > 1
@@ -52,11 +54,14 @@ function bertini(
             end
         end
         for t in Iterators.drop(fi_data, 1)
-            if t[3] < 0
-                fi = string(fi, "-$(abs(t[3]))")
+            if typeof(t[3]) <: Real
+                fi = string(fi, "+($(t[3]))")
             else
-                fi = string(fi, "+$(abs(t[3]))")
+                fi = string(fi, "+(")
+                fi = string(fi, string(t[3])[1:end-2])
+                fi = string(fi, "*I)")
             end
+
             for j in 1:length(t[1])
                 if t[1][j] > 1
                     fi = string(fi, "*$(t[2][j]^t[1][j])")
