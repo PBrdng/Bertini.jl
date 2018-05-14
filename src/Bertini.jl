@@ -1,5 +1,6 @@
 module Bertini
 
+using Base.Filesystem
 import MultivariatePolynomials
 const MP = MultivariatePolynomials
 
@@ -8,7 +9,7 @@ export bertini
 function bertini(
     f::Vector{T};
     hom_variable_group = false,
-    file_path = pwd(),
+    file_path = mktempdir(),
     bertini_path = "",
     MPTYPE = nothing,
     MAXNEWTONITS = nothing,
@@ -18,6 +19,8 @@ function bertini(
 
     oldpath = pwd()
     cd(file_path)
+    println("File path: $(file_path)")
+
     bertini_input = ["CONFIG",
         "TrackType:$TrackType;"]
     MPTYPE != nothing && push!(bertini_input, "MPTYPE: $MPTYPE;")
