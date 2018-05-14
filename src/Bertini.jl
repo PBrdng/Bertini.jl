@@ -9,7 +9,7 @@ function bertini(
     f::Vector{T};
     hom_variable_group = false,
     file_path = pwd(),
-    bertini_path = "./",
+    bertini_path = "",
     MPTYPE = nothing,
     MAXNEWTONITS = nothing,
     ENDGAMEBDRY = nothing,
@@ -83,7 +83,7 @@ function bertini(
     if file_path != "" && file_path[end] != '/'
         file_path = string(file_path, "/")
     end
-    if bertini_path[end] != '/'
+    if !isempty(bertini_path) && bertini_path[end] != '/'
         bertini_path = string(bertini_path, "/")
     end
 
