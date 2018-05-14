@@ -89,50 +89,34 @@ function bertini(
 
     writedlm("input.txt", bertini_input, '\n')
     run(`$(bertini_path)bertini input.txt`)
+    n_vars = length(MP.variables(f))
     if TrackType == 0
-        if !hom_variable_group
-            A = readdlm("finite_solutions")
-            n_vars = length(MP.variables(f))
-            finite_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            A = readdlm("nonsingular_solutions")
-            n_vars = length(MP.variables(f))
-            nonsingular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            A = readdlm("real_finite_solutions")
-            n_vars = length(MP.variables(f))
-            real_finite_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            A = readdlm("singular_solutions")
-            n_vars = length(MP.variables(f))
-            singular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            cd(oldpath)
-            return Dict(
-                "finite_solutions" => finite_solutions,
-                "nonsingular_solutions" => nonsingular_solutions,
-                "real_finite_solutions" => real_finite_solutions,
-                "singular_solutions" => singular_solutions)
-        else
-            A = readdlm("nonsingular_solutions")
-            n_vars = length(MP.variables(f))
-            nonsingular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            A = readdlm("real_solutions")
-            n_vars = length(MP.variables(f))
-            real_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            A = readdlm("singular_solutions")
-            n_vars = length(MP.variables(f))
-            singular_solutions = [[A[(j+i),1] + im * A[(j+i),2] for i in 1:n_vars] for j in 1:A[1,1]]
-
-            cd(oldpath)
-            return Dict(
-                "nonsingular_solutions" => nonsingular_solutions,
-                "real_solutions" => real_solutions,
-                "singular_solutions" => singular_solutions)
-        end
+        finite_solutions = read_solution_file("finite_solutions", n_vars)
+        nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+        singular_solutions = read_solution_file("singular_solutions", n_vars)
+        real_finite_solutions = read_solution_file("real_finite_solutions", n_vars)
+        cd(oldpath)
+        return Dict(
+            "finite_solutions" => finite_solutions,
+            "nonsingular_solutions" => nonsingular_solutions,
+            "real_finite_solutions" => real_finite_solutions,
+            "singular_solutions" => singular_solutions)
+    else
+        nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+        real_solutions = read_solution_file("real_solutions", n_vars)
+        singular_solutions = read_solution_file("singular_solutions", n_vars)
+        cd(oldpath)
+        return Dict(
+            "nonsingular_solutions" => nonsingular_solutions,
+            "real_solutions" => real_solutions,
+            "singular_solutions" => singular_solutions)
     end
-    cd(oldpath)
 end
+
+function read_solution_file(filename, n_vars)
+    A = readdlm(filename)
+    [[A[((j - 1)*n_vars + 1 + i),1] + im * A[((j - 1)*n_vars + 1 + i),2]
+      for i in 1:n_vars] for j in 1:A[1,1]]
+end
+
 end
