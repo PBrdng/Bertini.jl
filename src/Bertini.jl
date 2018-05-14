@@ -91,7 +91,7 @@ function bertini(
     end
 
     writedlm("input.txt", bertini_input, '\n')
-    run(`$(bertini_path)bertini input.txt`)
+    @time run(`$(bertini_path)bertini input.txt`)
     n_vars = length(MP.variables(f))
     if TrackType == 0
         finite_solutions = read_solution_file("finite_solutions", n_vars)
