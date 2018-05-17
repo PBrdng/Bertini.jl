@@ -110,14 +110,8 @@ function bertini(
             "real_finite_solutions" => real_finite_solutions,
             "singular_solutions" => singular_solutions)
     else
-        nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
-        real_solutions = read_solution_file("real_solutions", n_vars)
-        singular_solutions = read_solution_file("singular_solutions", n_vars)
         cd(oldpath)
-        return Dict(
-            "nonsingular_solutions" => nonsingular_solutions,
-            "real_solutions" => real_solutions,
-            "singular_solutions" => singular_solutions)
+        throw(error("Currently only `TrackType=0` is supported."))
     end
 end
 
