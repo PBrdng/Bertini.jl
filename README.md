@@ -23,8 +23,12 @@ The full syntax of `bertini` is as follows
 bertini(
     f::Vector{T};
     hom_variable_group = false,
-    file_path = "",
-    bertini_path = "./",
+    file_path = mktempdir(),
+    bertini_path = "",
+    MPTYPE = nothing,
+    MAXNEWTONITS = nothing,
+    ENDGAMEBDRY = nothing,
+    ENDGAMENUM = nothing,
     TrackType = 0)
 ```
 where
@@ -32,4 +36,4 @@ where
 * `hom_variable_group` tells Bertini whether or not we are computing in projective space,
 * `file_path` is the path to the folder where you want input.txt being saved to.
 * `bertini_path` is the path to the folder where the bertini executable is saved to.
-* `TrackType` sets the TrackType variable of Bertini.
+* the other arguments correspond to standard Bertini arguments
