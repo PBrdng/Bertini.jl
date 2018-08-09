@@ -88,16 +88,25 @@ function bertini(
     @time run(`$(bertini_path)bertini input.txt`)
     n_vars = length(MP.variables(f))
     if TrackType == 0
-        finite_solutions = read_solution_file("finite_solutions", n_vars)
-        nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
-        singular_solutions = read_solution_file("singular_solutions", n_vars)
-        real_finite_solutions = read_solution_file("real_finite_solutions", n_vars)
-        cd(oldpath)
-        return Dict(
-            "finite_solutions" => finite_solutions,
-            "nonsingular_solutions" => nonsingular_solutions,
-            "real_finite_solutions" => real_finite_solutions,
-            "singular_solutions" => singular_solutions)
+        if hom_variable_group
+            nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+            singular_solutions = read_solution_file("singular_solutions", n_vars)
+            cd(oldpath)
+            return Dict(
+                :nonsingular_solutions => nonsingular_solutions,
+                :singular_solutions => singular_solutions)
+        else
+            finite_solutions = read_solution_file("finite_solutions", n_vars)
+            nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+            singular_solutions = read_solution_file("singular_solutions", n_vars)
+            real_finite_solutions = read_solution_file("real_finite_solutions", n_vars)
+            cd(oldpath)
+            return Dict(
+                :finite_solutions => finite_solutions,
+                :nonsingular_solutions => nonsingular_solutions,
+                :real_finite_solutions => real_finite_solutions,
+                :singular_solutions => singular_solutions)
+        end
     else
         cd(oldpath)
         throw(error("Currently only `TrackType=0` is supported."))
