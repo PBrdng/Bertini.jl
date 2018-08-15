@@ -3,53 +3,42 @@ module Bertini
 using Base.Filesystem
 import MultivariatePolynomials
 const MP = MultivariatePolynomials
+using DelimitedFiles
 
 export bertini
 
 function bertini(
     f::Vector{T};
     hom_variable_group = false,
+    variable_groups = [MP.variables(f)],
     file_path = mktempdir(),
     bertini_path = "",
-    MPTYPE = nothing,
-    MAXNEWTONITS = nothing,
-    ENDGAMEBDRY = nothing,
-    ENDGAMENUM = nothing,
-    TrackType = 0) where {T <: MP.AbstractPolynomialLike}
+    TrackType = 0,
+    optionalconfig...) where {T <: MP.AbstractPolynomialLike}
 
     oldpath = pwd()
     cd(file_path)
     println("File path: $(file_path)")
 
-    bertini_input = ["CONFIG",
+    input = ["CONFIG",
         "TrackType:$TrackType;"]
-    MPTYPE != nothing && push!(bertini_input, "MPTYPE: $MPTYPE;")
-    ENDGAMEBDRY != nothing && push!(bertini_input, "ENDGAMEBDRY: $ENDGAMEBDRY;")
-    ENDGAMENUM != nothing && push!(bertini_input, "ENDGAMENUM: $ENDGAMENUM;")
-    MAXNEWTONITS != nothing && push!(bertini_input, "MAXNEWTONITS: $MAXNEWTONITS;")
-    push!(bertini_input, "END;", "INPUT")
-
-    if hom_variable_group
-        f_vars = "hom_variable_group "
-    else
-        f_vars = "variable_group "
+    for (k, v) in pairs(optionalconfig)
+        push!(input, "$k: $v;")
     end
-    for var in MP.variables(f)
-        f_vars = string(f_vars, "$var,")
-    end
-    f_vars = string(f_vars[1:end-1], ";")
-    push!(bertini_input, f_vars)
+    push!(input, "END;")
 
-    functions = "function "
-    for i in 1:length(f)
-        functions = string(functions, "f$i,")
-    end
-    functions = string(functions[1:end-1], ";")
-    push!(bertini_input, functions)
+    push!(input, "INPUT")
 
+    for vars in variable_groups
+        vargroup = hom_variable_group ? "hom_variable_group " : "variable_group "
+        vargroup *= join(vars, ",") * ";"
+        push!(input, vargroup)
+    end
+
+    push!(input, "function " * join(map(i -> "f$i", 1:length(f)), ",") * ";")
     for i in 1:length(f)
         monomials = MP.monomials(f[i])
-        fi_data = zip([MP.exponents(m) for m in monomials], [MP.variables(m) for m in monomials], MP.coefficients(f[i]))
+        fi_data = zip(MP.exponents.(monomials), MP.variables.(monomials), MP.coefficients(f[i]))
         fi = ""
         t = first(fi_data)
         if typeof(t[3]) <: Real
@@ -83,10 +72,10 @@ function bertini(
                 end
             end
         end
-        push!(bertini_input, "f$i = $fi;")
+        push!(input, "f$i = $fi;")
     end
 
-    push!(bertini_input, "END")
+    push!(input, "END")
 
     if file_path != "" && file_path[end] != '/'
         file_path = string(file_path, "/")
@@ -95,20 +84,29 @@ function bertini(
         bertini_path = string(bertini_path, "/")
     end
 
-    writedlm("input.txt", bertini_input, '\n')
+    writedlm("input.txt", input, '\n')
     @time run(`$(bertini_path)bertini input.txt`)
     n_vars = length(MP.variables(f))
     if TrackType == 0
-        finite_solutions = read_solution_file("finite_solutions", n_vars)
-        nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
-        singular_solutions = read_solution_file("singular_solutions", n_vars)
-        real_finite_solutions = read_solution_file("real_finite_solutions", n_vars)
-        cd(oldpath)
-        return Dict(
-            "finite_solutions" => finite_solutions,
-            "nonsingular_solutions" => nonsingular_solutions,
-            "real_finite_solutions" => real_finite_solutions,
-            "singular_solutions" => singular_solutions)
+        if hom_variable_group
+            nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+            singular_solutions = read_solution_file("singular_solutions", n_vars)
+            cd(oldpath)
+            return Dict(
+                :nonsingular_solutions => nonsingular_solutions,
+                :singular_solutions => singular_solutions)
+        else
+            finite_solutions = read_solution_file("finite_solutions", n_vars)
+            nonsingular_solutions = read_solution_file("nonsingular_solutions", n_vars)
+            singular_solutions = read_solution_file("singular_solutions", n_vars)
+            real_finite_solutions = read_solution_file("real_finite_solutions", n_vars)
+            cd(oldpath)
+            return Dict(
+                :finite_solutions => finite_solutions,
+                :nonsingular_solutions => nonsingular_solutions,
+                :real_finite_solutions => real_finite_solutions,
+                :singular_solutions => singular_solutions)
+        end
     else
         cd(oldpath)
         throw(error("Currently only `TrackType=0` is supported."))
