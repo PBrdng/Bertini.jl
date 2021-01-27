@@ -1,7 +1,6 @@
 # Bertini.jl
 Julia wrapper for Bertini (https://bertini.nd.edu). Provides the function `bertini`.
 
-Uses the Julia package [DynamicPolynomials.jl](https://github.com/JuliaAlgebra/DynamicPolynomials.jl).
 
 For instance, to solve the polynomial
 ```math
@@ -9,19 +8,18 @@ f(x) = x^2 - 1
 ```
 we type
 ```julia
-using Bertini
-using DynamicPolynomials
+using HomotopyContinuation, Bertini
 
-@polyvar x
-f = [x^2 - 1]
+@var x y
+f = [x^2 - 1; x - y]
 
-bertini(f)
+Bertini.bertini(f)
 ```
 
 The full syntax of `bertini` is as follows
 ```julia
 bertini(
-    f::Vector{T};
+    f;
     hom_variable_group = false,
     file_path = mktempdir(),
     bertini_path = "",
@@ -32,7 +30,6 @@ bertini(
     TrackType = 0)
 ```
 where
-* `T` is the polynomial type provided by DynamicPolynomials.
 * `hom_variable_group` tells Bertini whether or not we are computing in projective space,
 * `file_path` is the path to the folder where you want input.txt being saved to.
 * `bertini_path` is the path to the folder where the bertini executable is saved to.
