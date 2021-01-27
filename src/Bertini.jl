@@ -94,7 +94,12 @@ function bertini(
         )
     end
 
-    @time run(`bertini input`)
+    if bertini_path == ""
+        @time run(`bertini input`)
+    else
+        @time run(`$(bertini_path)/bertini input`)
+    end
+
 
     finite_solutions = HC.read_solutions("finite_solutions")
     runtime = open(joinpath(file_path, "output")) do f
