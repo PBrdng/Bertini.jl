@@ -118,4 +118,18 @@ function bertini(
     )
 end
 
+function bertini(
+        f::Vector{HC.Expression},
+        S = nothing;
+        kwargs...
+    )
+    bertini(HC.System(f), S; kwargs...)
+end
+function bertini(
+        f::HC.Expression,
+        S = nothing;
+        kwargs...
+    )
+    bertini(HC.System([f]), S; kwargs...)
+end
 end # module
