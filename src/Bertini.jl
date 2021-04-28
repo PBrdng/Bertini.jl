@@ -3,6 +3,10 @@ module Bertini
 export bertini
 
 import HomotopyContinuation
+using HomotopyContinuation: @var
+using HomotopyContinuation: @polyvar
+export @var
+export @polyvar
 const HC = HomotopyContinuation
 using DelimitedFiles
 
