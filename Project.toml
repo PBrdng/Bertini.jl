@@ -1,6 +1,6 @@
 name = "Bertini"
 uuid = "e878e6a3-2037-4ac5-b347-3944c480de5d"
-authors = ["Sascha Timme <sascha@timme.xyz>"]
+authors = ["Sascha Timme <sascha@timme.xyz>", "Paul Breiding <p.breiding@tu-berlin.de>"]
 version = "0.1.0"
 
 [deps]
